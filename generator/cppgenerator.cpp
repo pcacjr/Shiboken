@@ -3125,6 +3125,24 @@ void CppGenerator::writePrimitiveConverterInitialization(QTextStream& s, const C
     writeCustomConverterRegister(s, customConversion, converter);
 }
 
+void CppGenerator::writePrimitiveConverterInitialization(QTextStream& s, const PrimitiveTypeEntry* pte)
+{
+    QString converter = converterObject(pte);
+    s << INDENT << "// Register converter for type '" << pte->qualifiedTargetLangName() << "'." << endl;
+    s << INDENT << converter << " = Shiboken::Conversions::createConverter(";
+    if (pte->targetLangApiName() == pte->name())
+        s << '0';
+    else if (pte->targetLangApiName() == "PyObject")
+        s << "&PyBaseObject_Type";
+    else
+        s << '&' << pte->targetLangApiName() << "_Type";
+
+    QString typeName = fixedCppTypeName(pte);
+    s << ", " << cppToPythonFunctionName(typeName, typeName) << ");" << endl;
+    s << INDENT << "Shiboken::Conversions::registerConverterName(" << converter << ", \"" << pte->qualifiedCppName() << "\");" << endl;
+    //writeCustomConverterRegister(s, customConversion, converter);
+}
+
 void CppGenerator::writeEnumConverterInitialization(QTextStream& s, const AbstractMetaEnum* metaEnum)
 {
     if (metaEnum->isPrivate() || metaEnum->isAnonymous())
@@ -4810,6 +4828,16 @@ void CppGenerator::finishGeneration()
         s << endl;
         foreach (const CustomConversion* conversion, typeConversions) {
             writePrimitiveConverterInitialization(s, conversion);
+            s << endl;
+        }
+    }
+
+    /* Initialize the converters for the typedef's */
+    QList<const PrimitiveTypeEntry*> ptes = getPrimitiveTypeDefs();
+    if (!ptes.isEmpty()) {
+        s << endl;
+        foreach(const PrimitiveTypeEntry* pte, ptes) {
+            writePrimitiveConverterInitialization(s, pte);
             s << endl;
         }
     }

@@ -251,6 +251,7 @@ private:
     void writeSpecialCastFunction(QTextStream& s, const AbstractMetaClass* metaClass);
 
     void writePrimitiveConverterInitialization(QTextStream& s, const CustomConversion* customConversion);
+    void writePrimitiveConverterInitialization(QTextStream& s, const PrimitiveTypeEntry* pte);
     void writeEnumConverterInitialization(QTextStream& s, const TypeEntry* enumType);
     void writeEnumConverterInitialization(QTextStream& s, const AbstractMetaEnum* metaEnum);
     void writeContainerConverterInitialization(QTextStream& s, const AbstractMetaType* type);

@@ -306,10 +306,15 @@ void HeaderGenerator::finishGeneration()
     QList<const PrimitiveTypeEntry*> primitives = primitiveTypes();
     int pCount = 0;
     foreach (const PrimitiveTypeEntry* ptype, primitives) {
-        if (!ptype->generateCode() || !isUserPrimitive(ptype))
+        /* Note: do not generate indices for typedef'd primitive types
+         * as they'll use the primitive type converters instead, and we
+         * don't need to create any other.
+         */
+        if (!ptype->generateCode() || (!isUserPrimitive(ptype) ||
+                                       (isUserPrimitive(ptype) &&
+                                        ptype->basicAliasedTypeEntry())))
             continue;
-        _writeTypeIndexDefineLine(macrosStream, getTypeIndexVariableName(ptype), pCount);
-        pCount++;
+        _writeTypeIndexDefineLine(macrosStream, getTypeIndexVariableName(ptype), pCount++);
     }
 
     foreach (const AbstractMetaType* container, instantiatedContainers()) {

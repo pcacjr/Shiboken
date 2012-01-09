@@ -1351,11 +1351,37 @@ QList<const CustomConversion*> ShibokenGenerator::getPrimitiveCustomConversions(
 {
     QList<const CustomConversion*> conversions;
     foreach (const PrimitiveTypeEntry* type, primitiveTypes()) {
-        if (!shouldGenerateTypeEntry(type) || !isUserPrimitive(type) || !type->customConversion())
+        if (!shouldGenerateTypeEntry(type) || !isUserPrimitive(type) || !type->customConversion()) {
+            qDebug() << "name: " << type->name() << " {\n\t"
+                     << "target-lang-api-name: " << type->targetLangApiName()
+                     << ",\n\t" << "customConversion: "
+                     << (type->customConversion() ? "true" : "false") << ",\n\t"
+                     << "shouldGenerateTypeEntry(type): "
+                     << (shouldGenerateTypeEntry(type) ? "true" : "false")
+                     << ",\n\t" << "isUserPrimitive(type): "
+                     << (isUserPrimitive(type) ? "true" : "false") << ","
+                     << "\n}\n";
             continue;
+        }
+
         conversions << type->customConversion();
     }
     return conversions;
+}
+
+QList<const PrimitiveTypeEntry*> ShibokenGenerator::getPrimitiveTypeDefs(void)
+{
+    QList<const PrimitiveTypeEntry*> retval;
+    foreach(const PrimitiveTypeEntry* pte, primitiveTypes()) {
+        /* Note: pte->aliasedTypeEntry() returns a pointer that points
+         * to PrimitiveTypeEntry* only when it's an alias (a typedef).
+         */
+        if (!isUserPrimitive(pte) || pte->customConversion())
+            continue;
+
+        retval << pte;
+    }
+    return retval;
 }
 
 static QString getArgumentsFromMethodCall(const QString& str)

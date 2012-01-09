@@ -503,6 +503,9 @@ protected:
     /// Returns a list of converters for the non wrapper types of the current module.
     QList<const CustomConversion*> getPrimitiveCustomConversions();
 
+    /* Returns a list of primitive type entries for the typedef's */
+    QList<const PrimitiveTypeEntry*> getPrimitiveTypeDefs(void);
+
     /// Returns true if the Python wrapper for the received OverloadData must accept a list of arguments.
     static bool pythonFunctionWrapperUsesListOfArguments(const OverloadData& overloadData);
 
